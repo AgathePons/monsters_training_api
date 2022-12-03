@@ -1,6 +1,8 @@
 package my_little_monsters.controller;
 
 import my_little_monsters.dto.CapacityDto;
+import my_little_monsters.entities.Capacity;
+import my_little_monsters.error.NoDataFoundError;
 import my_little_monsters.service.impl.CapacityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,52 +15,56 @@ import java.util.Set;
 @RequestMapping("api/capacities")
 public class CapacityController {
 
+    static final String ITEM_TYPE = "Capacity";
     @Autowired // DI
     private CapacityServiceImpl capacityService;
 
     @GetMapping
-    public Set<CapacityDto> getAll() {
+    public Iterable<Capacity> getAll() {
         return capacityService.findAll();
     }
 
     @GetMapping("{id}")
-    public CapacityDto getById(@PathVariable("id") int id) {
-        Optional<CapacityDto> optCapacity = capacityService.findById(id);
-        return optCapacity.get();
-    }
-
-    @GetMapping("search")
-    public Set<CapacityDto> searchQuery(
-            @RequestParam(name="n", required = false) String name,
-            @RequestParam(name="at", required = false) Integer attackValue,
-            @RequestParam(name="de", required = false) Integer defenseValue
-    ) {
-        return capacityService.searchQuery(name, attackValue, defenseValue);
+    public Capacity getById(@PathVariable("id") int id) {
+        Optional<Capacity> optCapacity = capacityService.findById(id);
+        if (optCapacity.isPresent()) {
+            return optCapacity.get();
+        } else {
+            throw NoDataFoundError.withId(ITEM_TYPE, id);
+        }
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CapacityDto add(@RequestBody CapacityDto capacityDto) {
+    public Capacity add(@RequestBody CapacityDto capacityDto) {
         return capacityService.add(capacityDto);
+    }
+
+    @PutMapping("{id}")
+    public Capacity updatePartialById(
+            @PathVariable("id") int id,
+            @RequestBody CapacityDto capacityDto
+    ) {
+        return capacityService.update(capacityDto)
+                .orElseThrow(() -> NoDataFoundError.withId(ITEM_TYPE, capacityDto.getId()));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public boolean removeById(@PathVariable("id") int id) {
-        boolean isExisting = capacityService.delete(id);
-        if (isExisting) {
-            return true;
-        } else {
-            return false;
+    public void removeById(@PathVariable("id") int id) {
+        if(!capacityService.delete(id)) {
+            throw NoDataFoundError.withId(ITEM_TYPE, id);
         }
     }
 
-    @PutMapping("{id}")
-    public CapacityDto updatePartialById(
-            @PathVariable("id") int id,
-            @RequestBody CapacityDto updatedCapacity
+    @GetMapping("search")
+    public Iterable<Capacity> searchQuery(
+            @RequestParam(name="n", required = false) String name,
+            @RequestParam(name="at", required = false) Integer attackValue,
+            @RequestParam(name="de", required = false) Integer defenseValue
     ) {
-        return updatedCapacity;
+        // TODO
+        return capacityService.searchQuery(name, attackValue, defenseValue);
     }
 
 }
