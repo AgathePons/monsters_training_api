@@ -5,6 +5,8 @@ target/
 !**/src/test/**/target/
 
 docker-mysql8-phpmyadmin/.env
+docker-mysql8-phpmyadmin/datas/*
+!docker-mysql8-phpmyadmin/datas/ok
 
 ### STS ###
 .apt_generated
