@@ -1,21 +1,22 @@
 package my_little_monsters.service;
 
 import my_little_monsters.dto.CapacityDto;
+import my_little_monsters.entities.Capacity;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface CapacityService {
 
-    Set<CapacityDto> findAll();
+    Iterable<Capacity> findAll();
 
-    Optional<CapacityDto> findById(int id);
+    Optional<Capacity> findById(int id);
 
-    Set<CapacityDto> searchQuery(String name, Integer attackValue, Integer defenseValue);
+    Iterable<Capacity> searchQuery(String name, Integer attackValue, Integer defenseValue);
 
-    CapacityDto add(CapacityDto capacityDto);
+    Capacity add(CapacityDto capacityDto);
 
-    Optional<CapacityDto> update(CapacityDto capacityDto);
+    Optional<Capacity> update(CapacityDto capacityDto);
 
     boolean delete(int id);
 }

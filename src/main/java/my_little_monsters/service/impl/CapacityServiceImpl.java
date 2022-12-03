@@ -1,7 +1,10 @@
 package my_little_monsters.service.impl;
 
 import my_little_monsters.dto.CapacityDto;
+import my_little_monsters.entities.Capacity;
+import my_little_monsters.repository.CapacityRepository;
 import my_little_monsters.service.CapacityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,101 +13,71 @@ import java.util.Set;
 @Service
 public class CapacityServiceImpl implements CapacityService {
 
+    @Autowired
+    private CapacityRepository capacityRepository;
+
     @Override
-    public Set<CapacityDto> findAll() {
-        return Set.of(
-                CapacityDto.builder()
-                        .id(1)
-                        .name("Crounch")
-                        .description("Bite the enemy")
-                        .attackValue(5)
-                        .defenseValue(0)
-                        .build(),
-                CapacityDto.builder()
-                        .id(2)
-                        .name("Pouet")
-                        .description("Pouet the enemy")
-                        .attackValue(10)
-                        .defenseValue(0)
-                        .build(),
-                CapacityDto.builder()
-                        .id(1)
-                        .name("Cute eyes")
-                        .description("Make cute eyes at the enemy")
-                        .attackValue(0)
-                        .defenseValue(15)
-                        .build()
-        );
+    public Iterable<Capacity> findAll() {
+        return this.capacityRepository.findAll();
+//        return Set.of(
+//                CapacityDto.builder()
+//                        .id(1)
+//                        .name("Crounch")
+//                        .description("Bite the enemy")
+//                        .attackValue(5)
+//                        .defenseValue(0)
+//                        .build(),
+//                CapacityDto.builder()
+//                        .id(2)
+//                        .name("Pouet")
+//                        .description("Pouet the enemy")
+//                        .attackValue(10)
+//                        .defenseValue(0)
+//                        .build(),
+//                CapacityDto.builder()
+//                        .id(1)
+//                        .name("Cute eyes")
+//                        .description("Make cute eyes at the enemy")
+//                        .attackValue(0)
+//                        .defenseValue(15)
+//                        .build()
+//        );
     }
 
     @Override
-    public Optional<CapacityDto> findById(int id) {
-        if (id == 0) {
-            return Optional.empty();
-        } else {
-            return Optional.of(
-                    CapacityDto.builder()
-                            .id(1)
-                            .name("Crounch")
-                            .description("Bite the enemy")
-                            .attackValue(5)
-                            .defenseValue(0)
-                            .build()
-            );
+    public Optional<Capacity> findById(int id) {
+        return this.capacityRepository.findById(id);
+    }
+
+    @Override
+    public Capacity add(CapacityDto capacityDto) {
+        return this.capacityRepository.save(this.capacityRepository.save(capacityDto.toCapacityEntity()));
+    }
+
+    @Override
+    public Optional<Capacity> update(CapacityDto capacityDto) {
+        Capacity capacityEntity = capacityDto.toCapacityEntity();
+        Optional<Capacity> oCapacity = this.capacityRepository.findById(capacityEntity.getId());
+        if (oCapacity.isPresent()) {
+            this.capacityRepository.save(capacityEntity);
+            return Optional.of(capacityEntity);
         }
-    }
-
-    @Override
-    public Set<CapacityDto> searchQuery(String name, Integer attackValue, Integer defenseValue) {
-        return Set.of(
-                CapacityDto.builder()
-                        .id(1)
-                        .name(name)
-                        .description("Description of " + name)
-                        .attackValue(5)
-                        .defenseValue(0)
-                        .build(),
-                CapacityDto.builder()
-                        .id(1)
-                        .name("Sneaky " + name)
-                        .description("Description of the capacity")
-                        .attackValue(0)
-                        .defenseValue(15)
-                        .build()
-        );
-    }
-
-    @Override
-    public CapacityDto add(CapacityDto capacityDto) {
-        capacityDto.setId(666);
-        return capacityDto;
-    }
-
-    @Override
-    public Optional<CapacityDto> update(CapacityDto capacityDto) {
-        if (capacityDto.getId() == 0) {
-            return Optional.empty();
-        } else {
-            var capacity = CapacityDto.builder()
-                    .name("Name")
-                    .description("Description of the capacity")
-                    .attackValue(10)
-                    .defenseValue(10)
-                    .build();
-            capacity.setName(capacityDto.getName());
-            capacity.setDescription(capacityDto.getName());
-            capacity.setAttackValue(capacityDto.getAttackValue());
-            capacity.setDefenseValue((capacityDto.getDefenseValue()));
-            return Optional.of(capacity);
-        }
+        return Optional.empty();
     }
 
     @Override
     public boolean delete(int id) {
-        if (id == 0) {
-            return false;
-        } else {
+        Optional<Capacity> capacityToDelete = this.capacityRepository.findById(id);
+        if(capacityToDelete.isPresent()) {
+            this.capacityRepository.delete(capacityToDelete.get());
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public Iterable<Capacity> searchQuery(String name, Integer attackValue, Integer defenseValue) {
+        // TODO
+        return null;
     }
 }
